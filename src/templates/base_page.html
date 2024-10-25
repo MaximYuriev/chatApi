@@ -1,0 +1,46 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мессенджер</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', path='styles/chat.css') }}">
+  </head>
+  <body>
+    <div class="chat-container">
+      <div class="user-list">
+        <div class="user-list-header">
+          <span>Избранное</span>
+          <div>
+            <button class="search-button" id="searchButton">Поиск</button>
+            <button class="logout-button" id="logoutButton">Выйти</button>
+          </div>
+        </div>
+        <div id="userList">
+          {% for chat in chats['data'] %}
+            <a href="/page/chat/{{ chat.chat_id }}" style="text-decoration: None; color: black;">
+                <div class="user-item" data-user-id="{{ current_user.user_id }}">
+                    {{ chat.chat_id }}
+                </div>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="chat-area">
+        {% block chatArea %}{% endblock %}
+      </div>
+    </div>
+
+    <div id="searchModal" class="search-modal">
+      <div class="search-modal-content">
+        <span class="close">&times;</span>
+        <h2>Поиск пользователя</h2>
+        <div class="search-form">
+          <input type="text" id="searchInput" placeholder="Введите имя пользователя">
+          <button id="searchSubmit">Искать</button>
+        </div>
+      </div>
+    </div>
+    <script src="{{ url_for('static', path='scripts/chat.js') }}"></script>
+    {% block script %}{% endblock %}
+  </body>
+</html>

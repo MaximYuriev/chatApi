@@ -1,0 +1,70 @@
+{% extends "base_page.html" %}
+
+{% block chatArea %}
+    <div class="chat-header" id="chatHeader">
+        <span>Чат с таким-то</span>
+    </div>
+    <div class="messages" id="messages">
+    </div>
+    <div class="input-area">
+        <input type="text" id="messageInput" placeholder="Введите сообщение...">
+        <button id="sendButton" onclick="sendMessage({{ current_chat.chat_id }})">Отправить</button>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+
+        socket = new WebSocket(`ws://localhost:8000/chat/ws/{{ current_chat.chat_id }}/{{ current_user.user_id }}`);
+
+        socket.onopen = () => console.log('WebSocket соединение установлено');
+
+        socket.onmessage = function(event){
+            const incomingMessage = JSON.parse(event.data);
+            console.log(incomingMessage)
+            if (incomingMessage.sender_id == {{ current_user.user_id }})
+                addMessageToChat(incomingMessage.content, 'sent')
+            else
+                addMessageToChat(incomingMessage.content, 'received')
+        };
+
+        window.addEventListener('load', () => {
+            loadMessages({{ current_chat.chat_id }});
+        });
+
+        async function loadMessages(chatId) {
+        try {
+            const response = await fetch(`/chat/message/${chatId}`);
+            const messages = await response.json();
+            console.log(messages)
+            const messagesContainer = document.getElementById('messages');
+            messages['data'].map(message =>
+                addMessageToChat(message.content, message.senderId == {{ current_user.user_id }}?'sent':'received')
+            ).join('');
+        } catch (error) {
+            console.error('Ошибка загрузки сообщений:', error);
+        }}
+
+        async function sendMessage(chatId) {
+            const messageText = messageInput.value.trim();
+            if (messageText) {
+                const message = {"content": messageText}
+                await fetch(`/chat/message/${chatId}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(message)
+                });
+                messageInput.value = '';
+            }
+        }
+
+        function addMessageToChat(text, type) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', type);
+            messageElement.textContent = text;
+            messages.appendChild(messageElement);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+    </script>
+{% endblock %}
