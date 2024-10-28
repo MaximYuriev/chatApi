@@ -19,7 +19,6 @@ class User(Base):
 class Chat(Base):
     __tablename__ = 'chat'
     chat_id: Mapped[int] = mapped_column(primary_key=True)
-    chat_name: Mapped[str]
     user_1_id: Mapped[int] = mapped_column(ForeignKey(User.user_id))
     user_2_id: Mapped[int] = mapped_column(ForeignKey(User.user_id))
 
