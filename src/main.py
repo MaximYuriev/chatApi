@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-
+from config import UVICORN_HOST
 from routers.auth import auth_router
 from routers.chat import chat_router
 from routers.page import page_router
@@ -18,4 +18,4 @@ app.include_router(page_router)
 app.include_router(chat_router)
 
 if __name__ == '__main__':
-    uvicorn.run("main:app",reload=True)
+    uvicorn.run("main:app", host=UVICORN_HOST, reload=True)

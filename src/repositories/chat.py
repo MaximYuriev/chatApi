@@ -1,9 +1,9 @@
 from typing import Sequence
 
-from sqlalchemy import select, or_, and_
+from sqlalchemy import select, or_, and_, case
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from schemas.user import Chat
+from schemas.user import Chat, User
 
 
 class ChatRepository:
@@ -32,9 +32,24 @@ class ChatRepository:
 
     @staticmethod
     async def get_all_users_chat(session: AsyncSession, user_id: int) -> Sequence:
-        query = (
-            select(Chat)
+        cte = (
+            select(Chat.chat_id, case(
+                (Chat.user_1_id != user_id, Chat.user_1_id),
+                (Chat.user_2_id != user_id, Chat.user_2_id),
+                else_=user_id
+            ).label("user_id"))
             .where(or_(Chat.user_1_id == user_id, Chat.user_2_id == user_id))
+            .cte("user_chats")
+        )
+        query = (
+            select(cte.c.chat_id, case(
+                (and_(User.firstname != None, User.lastname != None), User.firstname + " " + User.lastname),
+                (and_(User.firstname != None, User.lastname == None), User.firstname),
+                (and_(User.firstname == None, User.lastname != None), User.lastname),
+                else_=User.username
+            ).label("fullname"))
+            .join(User, User.user_id == cte.c.user_id)
+            .order_by(cte.c.chat_id)
         )
         chats = await session.execute(query)
-        return chats.scalars().all()
+        return chats.all()

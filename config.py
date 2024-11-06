@@ -20,3 +20,5 @@ SMTP_PORT = int(os.environ.get('SMTP_PORT'))
 
 REDIS_HOST = os.environ.get("REDIS_HOST")
 REDIS_PORT = int(os.environ.get("REDIS_PORT"))
+
+UVICORN_HOST = os.environ.get("UVICORN_HOST")

@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.chat import ChatRead
+from models.chat import ChatOuterRead, ChatInnerRead
 from services.chat import ChatServices
 from services.ws import WebSocketServices
 from src.models.message import MessageCreate
@@ -10,7 +10,7 @@ from repositories.message import MessageRepository
 class MessageService:
 
     @staticmethod
-    async def send_message(session:AsyncSession, message:MessageCreate, sender_id: int, chat:ChatRead):
+    async def send_message(session:AsyncSession, message:MessageCreate, sender_id: int, chat:ChatInnerRead):
         message = message.model_dump()
         message.update(sender_id=sender_id)
 

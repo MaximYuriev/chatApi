@@ -2,7 +2,7 @@ from httpx import AsyncClient
 
 
 async def test_create_new_chat(client: AsyncClient, current_test_user):
-    chat_create = {"user2Id": 2}
+    chat_create = {"username": "test_user2"}
     response = await client.post("/chat", json=chat_create)
     assert response.status_code == 200
 

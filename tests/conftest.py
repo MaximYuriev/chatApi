@@ -13,7 +13,7 @@ db_url_test = f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGR
 
 test_db_engine = create_async_engine(db_url_test, echo=False, poolclass=NullPool)
 test_async_session = async_sessionmaker(test_db_engine, expire_on_commit=False)
-#Base.metadata.bind = test_db_engine
+
 
 
 async def override_get_session():
