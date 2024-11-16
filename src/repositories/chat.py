@@ -1,8 +1,9 @@
 from typing import Sequence
 
-from sqlalchemy import select, or_, and_, case
+from sqlalchemy import select, or_, and_, case, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from schemas.message import Message
 from schemas.user import Chat, User
 
 
@@ -41,14 +42,21 @@ class ChatRepository:
             .where(or_(Chat.user_1_id == user_id, Chat.user_2_id == user_id))
             .cte("user_chats")
         )
+        subquery = (
+            select(Message.chat_id, Message.message_id, Message.content)
+            .distinct(Message.chat_id)
+            .order_by(Message.chat_id, desc(Message.message_id))
+            .cte("last_messages")
+        )
         query = (
             select(cte.c.chat_id, case(
                 (and_(User.firstname != None, User.lastname != None), User.firstname + " " + User.lastname),
                 (and_(User.firstname != None, User.lastname == None), User.firstname),
                 (and_(User.firstname == None, User.lastname != None), User.lastname),
                 else_=User.username
-            ).label("fullname"))
+            ).label("fullname"), subquery.c.content)
             .join(User, User.user_id == cte.c.user_id)
+            .join(subquery, cte.c.chat_id == subquery.c.chat_id, isouter=True)
             .order_by(cte.c.chat_id)
         )
         chats = await session.execute(query)

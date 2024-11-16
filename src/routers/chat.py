@@ -5,6 +5,7 @@ from db.database import get_session
 from dependencies.dependecies import current_user
 from models.chat import ChatCreate, ChatOuterRead, ChatInnerRead
 from models.message import MessageCreate
+from repositories.chat import ChatRepository
 from schemas.user import User, Chat
 from services.chat import ChatServices
 from services.message import MessageService
@@ -27,6 +28,10 @@ async def create_new_chat(chat: ChatCreate, user: User = Depends(current_user),
 @chat_router.get("")
 async def get_all_users_chats(user: User = Depends(current_user), session: AsyncSession = Depends(get_session)):
     return await ChatServices.get_all_user_chat(session, user.user_id)
+
+@chat_router.get("/chtdist")
+async def get_chat_distinct(session: AsyncSession = Depends(get_session)):
+    await ChatRepository.distinct_select(session)
 
 @chat_router.get("/{chat_id}")
 async def get_chat_by_chat_id(chat_id:int, user: User = Depends(current_user),

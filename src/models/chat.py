@@ -7,6 +7,9 @@ class ChatCreate(BaseModel):
 class ChatOuterRead(BaseModel):
     chat_id: int = Field(description="id чата", serialization_alias="chatId")
     fullname: str = Field(description="Полное имя пользователя")
+    last_message: str | None = Field(description="Последнее сообщение",
+                                     serialization_alias="lastMessage",
+                                     validation_alias="content")
 
 class ChatInnerRead(BaseModel):
     chat_id: int
