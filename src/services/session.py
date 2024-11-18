@@ -1,28 +1,34 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Response, HTTPException
+from fastapi import HTTPException, Depends
 
-from config import COOKIES_KEY_NAME
-from src.models.session import UserSession
-from src.repositories.session import SessionRepository
-from schemas.user import Session
+from exceptions.auth import SessionNotFound
+from repositories.session import SessionRepository, SessionCookieRepository
+from src.schemas.session import UserSession
+from models.user import Session
 
 
 class SessionService:
+    def __init__(self, db_repository: SessionRepository = Depends(), cookie_repository: SessionCookieRepository = Depends()):
+        self.repository = db_repository
+        self.cookie_storage = cookie_repository
 
-    @staticmethod
-    async def create(session:AsyncSession, user_session:UserSession):
+    async def create(self, user_session:UserSession):
         add_session_data = user_session.model_dump(exclude_unset=True)
-        return await SessionRepository.create(session,add_session_data)
+        session_id = await self.repository.create(add_session_data)
+        self.cookie_storage.create(session_id)
 
-    @staticmethod
-    async def get_session_by_cookies(session: AsyncSession, response:Response, cookies: str):
-        user_session = await SessionRepository.get_session_by_id(session, cookies)
+    def get_cookie(self):
+        return self.cookie_storage.get()
+
+    async def get_session(self, cookies: str):
+        user_session = await self.repository.get_session_by_id(cookies)
         if user_session is None:
-            response.delete_cookie(COOKIES_KEY_NAME)
-            raise HTTPException(status_code=404, detail="Сессия не найдена", headers=response.headers)
+            headers = self.cookie_storage.delete()
+            raise SessionNotFound(headers=headers)
         return user_session
 
-    @staticmethod
-    async def delete(session: AsyncSession, user_session: Session):
-        await SessionRepository.delete(session, user_session)
-        return {"detail":"Сессия удалена", "data":None}
+    async def delete(self, user_session: Session):
+        await self.repository.delete(user_session)
+
+    async def delete_with_cookie(self, user_session: Session):
+        await self.delete(user_session)
+        self.cookie_storage.delete()

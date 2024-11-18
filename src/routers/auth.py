@@ -1,29 +1,37 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Response, Header
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends
 
-from db.database import get_session
-from src.dependencies.dependecies import current_session, find_cookies
-from schemas.user import Session as SignInSession
-from src.models.user import UserLogin
-from src.models.user import User as UserDTO
-from src.services.user import UserService
+from dependencies.auth import validate_reg_user, prepare_user_session, current_session
+from schemas.session import UserSession
+from services.session import SessionService
+from models.user import Session
+from schemas.user import UserCreate
+from services.user import UserService
 
 auth_router = APIRouter(prefix='/auth', tags=['Auth'])
 
 @auth_router.post('/registration')
-async def user_registration(user:UserDTO, session:AsyncSession = Depends(get_session)):
-    return await UserService.create(session, user)
+async def user_registration(
+        user_create: Annotated[UserCreate, Depends(validate_reg_user)],
+        user_service: UserService = Depends()
+):
+    return await user_service.create(user_create)
 
 @auth_router.post('/login')
-async def user_login(user_auth:UserLogin, response:Response, user_agent: Annotated[str | None, Header()] = None,
-                     session:AsyncSession = Depends(get_session), cookies: str|None = Depends(find_cookies)):
-    return await UserService.login(session,response,user_auth,user_agent, cookies)
+async def user_login(
+        user_session: UserSession = Depends(prepare_user_session),
+        session_service: SessionService = Depends()
+):
+    await session_service.create(user_session)
+    return {"detail": "Пользователь авторизован!", "data": None}
 
 
 @auth_router.get('/logout')
-async def user_logout(response:Response, user_session:SignInSession = Depends(current_session),
-                      session: AsyncSession = Depends(get_session)):
-    return await UserService.logout(session, response, user_session)
+async def user_logout(
+        user_session: Annotated[Session, Depends(current_session)],
+        session_service: SessionService = Depends()
+):
+    await session_service.delete_with_cookie(user_session)
+    return {"detail": "Пользователь вышел!", "data": None}
 

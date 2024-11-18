@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.chat import ChatOuterRead, ChatInnerRead
+from schemas.chat import ChatOuterRead, ChatInnerRead
 from services.chat import ChatServices
 from services.ws import WebSocketServices
-from src.models.message import MessageCreate
+from src.schemas.message import MessageCreate
 from repositories.message import MessageRepository
 
 

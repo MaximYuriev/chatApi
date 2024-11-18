@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.chat import ChatCreate, ChatOuterRead, ChatInnerRead
+from schemas.chat import ChatCreate, ChatOuterRead, ChatInnerRead
 from repositories.chat import ChatRepository
 from src.services.user import UserRepository
 

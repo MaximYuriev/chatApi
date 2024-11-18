@@ -17,13 +17,20 @@ class WebSocketServices:
             while True:
                 await asyncio.sleep(1)
         except WebSocketDisconnect:
-            WebSocketServices.remove_on_connection_list(user_id)
-            ChatServices.remove_on_connection_list(user_id)
+            WebSocketServices.ws_disconnect(user_id)
 
     @classmethod
     async def send_message(cls, user_id:int, message: dict):
         websocket = cls.active_connections[user_id]
-        await websocket.send_json(message)
+        try:
+            await websocket.send_json(message)
+        except WebSocketDisconnect:
+            WebSocketServices.ws_disconnect(user_id)
+
+    @classmethod
+    def ws_disconnect(cls, user_id: int):
+        WebSocketServices.remove_on_connection_list(user_id)
+        ChatServices.remove_on_connection_list(user_id)
 
     @classmethod
     def add_on_connection_list(cls, websocket: WebSocket, user_id: int):

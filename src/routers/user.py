@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_session
 
 from dependencies.dependecies import current_user
-from schemas.user import User
+from models.user import User
 from services.user import UserService
 
 user_router = APIRouter(prefix='/user', tags=['User'])

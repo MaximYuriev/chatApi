@@ -1,13 +1,9 @@
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
-
-from db.database import Base
-from schemas.user import User, Chat
+from pydantic import BaseModel, Field
 
 
-class Message(Base):
-    __tablename__ = 'message'
-    message_id: Mapped[int] = mapped_column(primary_key=True)
-    chat_id: Mapped[int] = mapped_column(ForeignKey(Chat.chat_id))
-    sender_id: Mapped[int] = mapped_column(ForeignKey(User.user_id))
-    content: Mapped[str]
+class MessageCreate(BaseModel):
+    content: str = Field(description="Текст сообщения")
+
+class MessageRead(MessageCreate):
+    message_id: int = Field(description="id сообщения", serialization_alias="messageId")
+    sender_id: int = Field(description="id отправителя", serialization_alias="senderId")

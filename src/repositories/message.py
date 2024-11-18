@@ -1,26 +1,26 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.message import MessageRead
-from schemas.message import Message
+from src.schemas.message import MessageRead
+from models.message import Message
 
 
 class MessageRepository:
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
-    @staticmethod
-    async def create(session:AsyncSession, add_data_message:dict) -> None:
+    async def create(self, add_data_message:dict) -> None:
         message = Message(**add_data_message)
-        session.add(message)
-        await session.commit()
+        self.session.add(message)
+        await self.session.commit()
 
-    @staticmethod
-    async def get_message_between_users(session:AsyncSession, chat_id:int) -> list:
+    async def get_message_between_users(self, chat_id:int) -> list:
         query = (
             select(Message)
             .where(Message.chat_id == chat_id)
             .order_by(Message.message_id)
         )
-        res = await session.execute(query)
+        res = await self.session.execute(query)
         result_orm = res.scalars().all()
         result_dto = [MessageRead.model_validate(row, from_attributes=True) for row in result_orm]
         return  result_dto
