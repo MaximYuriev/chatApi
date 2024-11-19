@@ -19,7 +19,7 @@
           {% for chat in chats['data'] %}
             <a href="/page/chat/{{ chat.chat_id }}" style="text-decoration: None; color: black;">
                 <div class="user-item" data-user-id="{{ current_user.user_id }}">
-                    {{ chat.chat_id }}
+                    {{ chat.fullname }}
                 </div>
             </a>
           {% endfor %}

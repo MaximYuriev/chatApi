@@ -11,7 +11,6 @@ const searchSubmit = document.getElementById('searchSubmit');
 const logoutButton = document.getElementById('logoutButton');
 
 
-// Search functionality
 searchButton.onclick = function() {
   searchModal.style.display = "block";
 }
@@ -38,13 +37,9 @@ searchSubmit.onclick = function() {
   }
 }
 
-// Logout functionality
 logoutButton.onclick = function() {
   if (confirm('Вы уверены, что хотите выйти?')) {
-    // In a real app, here you would send a request to the server to log out
-    // and then redirect to the login page
     alert('Вы вышли из системы');
-    // For demonstration, we'll just reload the page
     window.location.reload();
   }
 }
