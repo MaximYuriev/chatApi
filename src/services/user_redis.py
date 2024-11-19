@@ -14,7 +14,7 @@ class UserRedisService:
         return code_value
 
     @staticmethod
-    def check_verify_code(user_id:int, user_code:int):
+    def check_verify_code(user_id: int, user_code: int):
         true_code = UserRedisRepository.get(str(user_id))
 
         if true_code is None:

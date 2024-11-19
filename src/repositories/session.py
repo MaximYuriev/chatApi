@@ -12,7 +12,7 @@ class SessionRepository:
     def __init__(self, session: AsyncSession = Depends(get_session)):
         self.session = session
 
-    async def create(self, add_session_data:dict) -> uuid.UUID:
+    async def create(self, add_session_data: dict) -> uuid.UUID:
         user_session = Session(**add_session_data)
         self.session.add(user_session)
         await self.session.commit()
@@ -21,9 +21,10 @@ class SessionRepository:
     async def get_session_by_id(self, session_id: uuid.UUID | str) -> Session | None:
         return await self.session.get(Session, session_id)
 
-    async def delete(self, user_session:Session) -> None:
+    async def delete(self, user_session: Session) -> None:
         await self.session.delete(user_session)
         await self.session.commit()
+
 
 class SessionCookieRepository:
     def __init__(self, response: Response, request: Request):

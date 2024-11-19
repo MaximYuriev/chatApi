@@ -20,7 +20,7 @@ class WebSocketServices:
             WebSocketServices.ws_disconnect(user_id)
 
     @classmethod
-    async def send_message(cls, user_id:int, message: dict):
+    async def send_message(cls, user_id: int, message: dict):
         websocket = cls.active_connections[user_id]
         try:
             await websocket.send_json(message)
@@ -37,5 +37,5 @@ class WebSocketServices:
         cls.active_connections[user_id] = websocket
 
     @classmethod
-    def remove_on_connection_list(cls, user_id:int):
+    def remove_on_connection_list(cls, user_id: int):
         cls.active_connections.pop(user_id, None)

@@ -16,6 +16,7 @@ class User(Base):
     lastname: Mapped[str] = mapped_column(nullable=True)
     is_verify: Mapped[bool] = mapped_column(default=False)
 
+
 class Chat(Base):
     __tablename__ = 'chat'
     chat_id: Mapped[int] = mapped_column(primary_key=True)
@@ -26,5 +27,5 @@ class Chat(Base):
 class Session(Base):
     __tablename__ = "session"
     session_id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid4)
-    user_id: Mapped[int] = mapped_column(ForeignKey(User.user_id,ondelete="CASCADE"))
+    user_id: Mapped[int] = mapped_column(ForeignKey(User.user_id, ondelete="CASCADE"))
     user_agent: Mapped[str] = mapped_column(nullable=True)

@@ -1,5 +1,4 @@
-from fastapi import HTTPException, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Depends
 
 from exceptions.chat import ChatNotFound, ChatAccessDenied
 from models.user import Chat

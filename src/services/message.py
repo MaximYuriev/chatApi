@@ -1,7 +1,6 @@
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from schemas.chat import ChatOuterRead, ChatSchema
+from schemas.chat import ChatSchema
 from services.chat import ChatService
 from services.ws import WebSocketServices
 from src.schemas.message import MessageCreate

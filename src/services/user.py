@@ -1,16 +1,10 @@
-from fastapi import HTTPException, Response, Depends
+from fastapi import Depends
 from passlib.handlers.pbkdf2 import pbkdf2_sha256
 from pydantic import EmailStr
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import COOKIES_KEY_NAME
-from schemas.session import UserSession
 from repositories.user import UserRepository
 from schemas.user import UserCreate
-from models.user import Session, User
-from services.session import SessionService
-from bgtask.task import send_email_message
-from services.user_redis import UserRedisService
+from models.user import User
 
 
 class UserService:

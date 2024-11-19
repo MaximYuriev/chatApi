@@ -11,12 +11,14 @@ from services.user import UserService
 
 auth_router = APIRouter(prefix='/auth', tags=['Auth'])
 
+
 @auth_router.post('/registration')
 async def user_registration(
         user_create: Annotated[UserCreate, Depends(validate_reg_user)],
         user_service: UserService = Depends()
 ):
     return await user_service.create(user_create)
+
 
 @auth_router.post('/login')
 async def user_login(
@@ -34,4 +36,3 @@ async def user_logout(
 ):
     await session_service.delete_with_cookie(user_session)
     return {"detail": "Пользователь вышел!", "data": None}
-

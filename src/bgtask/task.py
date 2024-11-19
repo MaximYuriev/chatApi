@@ -8,6 +8,7 @@ from services.user_redis import UserRedisService
 
 celery = Celery("task", broker='redis://localhost:6379')
 
+
 def get_email_message(email: str, user_id: int) -> EmailMessage:
     email_message = EmailMessage()
     email_message['Subject'] = 'Мессенджер'
@@ -25,8 +26,9 @@ def get_email_message(email: str, user_id: int) -> EmailMessage:
 
     return email_message
 
+
 @celery.task
-def send_email_message(email:str, user_id: int):
+def send_email_message(email: str, user_id: int):
     email_message = get_email_message(email, user_id)
     with smtplib.SMTP_SSL(host=SMTP_HOST, port=SMTP_PORT) as server:
         server.login(SMTP_USER, SMTP_PASSWORD)

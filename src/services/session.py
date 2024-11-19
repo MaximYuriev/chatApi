@@ -1,4 +1,4 @@
-from fastapi import HTTPException, Depends
+from fastapi import Depends
 
 from exceptions.auth import SessionNotFound
 from repositories.session import SessionRepository, SessionCookieRepository
@@ -7,11 +7,12 @@ from models.user import Session
 
 
 class SessionService:
-    def __init__(self, db_repository: SessionRepository = Depends(), cookie_repository: SessionCookieRepository = Depends()):
+    def __init__(self, db_repository: SessionRepository = Depends(),
+                 cookie_repository: SessionCookieRepository = Depends()):
         self.repository = db_repository
         self.cookie_storage = cookie_repository
 
-    async def create(self, user_session:UserSession):
+    async def create(self, user_session: UserSession):
         add_session_data = user_session.model_dump(exclude_unset=True)
         session_id = await self.repository.create(add_session_data)
         self.cookie_storage.create(session_id)

@@ -15,6 +15,7 @@ async def test_create_new_chat(client: AsyncClient, current_test_user):
     response = await client.get("/chat/1")
     assert response.status_code == 200
 
+
 async def test_send_message(client: AsyncClient, current_test_user):
     message = {"content": "string"}
     response = await client.post("/chat/message/1", json=message)

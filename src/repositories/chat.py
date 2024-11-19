@@ -18,10 +18,10 @@ class ChatRepository:
         self.session.add(chat)
         await self.session.commit()
 
-    async def get_chat(self, chat_id: int) -> Chat|None:
+    async def get_chat(self, chat_id: int) -> Chat | None:
         return await self.session.get(Chat, chat_id)
 
-    async def get_chat_between_users(self, user_1_id: int, user_2_id: int) -> Chat|None:
+    async def get_chat_between_users(self, user_1_id: int, user_2_id: int) -> Chat | None:
         query = (
             select(Chat)
             .where(or_(
@@ -30,7 +30,6 @@ class ChatRepository:
             ))
         )
         return await self.session.scalar(query)
-
 
     async def get_all_users_chat(self, user_id: int) -> Sequence:
         cte = (
