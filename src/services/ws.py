@@ -2,7 +2,7 @@ import asyncio
 
 from fastapi import WebSocket, WebSocketDisconnect
 
-from services.chat import ChatServices
+from services.chat import ChatService
 
 
 class WebSocketServices:
@@ -12,7 +12,7 @@ class WebSocketServices:
     async def ws_connection(cls, websocket: WebSocket, user_id: int, chat_id: int):
         await websocket.accept()
         WebSocketServices.add_on_connection_list(websocket, user_id)
-        ChatServices.add_on_connection_list(user_id, chat_id)
+        ChatService.add_on_connection_list(user_id, chat_id)
         try:
             while True:
                 await asyncio.sleep(1)
@@ -30,7 +30,7 @@ class WebSocketServices:
     @classmethod
     def ws_disconnect(cls, user_id: int):
         WebSocketServices.remove_on_connection_list(user_id)
-        ChatServices.remove_on_connection_list(user_id)
+        ChatService.remove_on_connection_list(user_id)
 
     @classmethod
     def add_on_connection_list(cls, websocket: WebSocket, user_id: int):

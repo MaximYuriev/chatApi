@@ -17,7 +17,7 @@ class UserService:
     def __init__(self, repository: UserRepository = Depends()):
         self.repository = repository
 
-    async def create(self, user:UserCreate):
+    async def create(self, user: UserCreate):
         user.password = pbkdf2_sha256.hash(user.password)
         add_user_data = user.model_dump(exclude_unset=True)
         await self.repository.create(add_user_data)
@@ -32,30 +32,6 @@ class UserService:
     async def get_user_by_username(self, username: str) -> User | None:
         return await self.repository.get_user_by_param(username=username)
 
-    # async def get_user_by_session(self, user_session: Session) -> User | None:
-    #     user = await self.repository.get_user_by_session(user_session)
-    #     if user is None:
-    #         raise HTTPException(status_code=403, detail="Нет доступа")
-    #     return user
-    #
-    # async def login(self, user_auth:UserLogin, user_agent: str|None = None,
-    #                 cookies: str|None = None):
-    #     if cookies is not None:
-    #         raise HTTPException(status_code=400, detail="Вход уже выполнен")
-    #
-    #
-    #     user_session = UserSession(user_id=user.user_id, user_agent=user_agent)
-    #     session_id = await SessionService.create(session, user_session)
-    #
-    #     response.set_cookie(key=COOKIES_KEY_NAME, value=session_id, httponly=True)
-    #     return {"detail": "Пользователь вошел в аккаунт", "data": None}
-    #
-    # @staticmethod
-    # async def logout(session: AsyncSession, response:Response, user_session:Session):
-    #     await SessionService.delete(session, user_session)
-    #     response.delete_cookie(COOKIES_KEY_NAME)
-    #     return {"detail":"Пользователь вышел!", "data":None}
-    #
     # @staticmethod
     # def send_verify_code(user:User):
     #     if user.is_verify:

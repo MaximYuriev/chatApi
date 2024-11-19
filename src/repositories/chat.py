@@ -1,14 +1,16 @@
 from typing import Sequence
 
+from fastapi import Depends
 from sqlalchemy import select, or_, and_, case, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from db.database import get_session
 from models.message import Message
 from models.user import Chat, User
 
 
 class ChatRepository:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession = Depends(get_session)):
         self.session = session
 
     async def create(self, add_chat_data: dict) -> None:

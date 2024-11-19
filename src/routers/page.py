@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Request, Depends
 from starlette.templating import Jinja2Templates
 
-from src.dependencies.dependecies import current_user
-from src.routers.chat import get_all_users_chats, get_chat_by_chat_id
+from dependencies.auth import current_user
+from routers.chat import get_all_users_chats, get_chat_by_chat_id
 from models.user import User, Chat
 
 page_router = APIRouter(prefix="/page", tags=['Pages'])

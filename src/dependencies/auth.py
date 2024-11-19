@@ -52,4 +52,4 @@ async def current_user(
         session: Annotated[Session, Depends(current_session)],
         user_service: UserService = Depends()
 ):
-    return user_service.get_user_by_id(session.user_id)
+    return await user_service.get_user_by_id(session.user_id)

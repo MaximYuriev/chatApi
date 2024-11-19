@@ -1,12 +1,14 @@
+from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.schemas.message import MessageRead
+from db.database import get_session
+from src.schemas.message import MessageSchema
 from models.message import Message
 
 
 class MessageRepository:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession = Depends(get_session)):
         self.session = session
 
     async def create(self, add_data_message:dict) -> None:
@@ -22,5 +24,5 @@ class MessageRepository:
         )
         res = await self.session.execute(query)
         result_orm = res.scalars().all()
-        result_dto = [MessageRead.model_validate(row, from_attributes=True) for row in result_orm]
+        result_dto = [MessageSchema.model_validate(row, from_attributes=True) for row in result_orm]
         return  result_dto
