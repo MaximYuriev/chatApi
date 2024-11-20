@@ -33,7 +33,6 @@ class UserRepository:
 
 
 class UserRedisRepository:
-
     @staticmethod
     def set(key: str, value: any, expire: int | None) -> None:
         with Redis() as redis_session:
