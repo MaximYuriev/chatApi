@@ -1,8 +1,7 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.orm import declarative_base
 
-from config import POSTGRES_DB, POSTGRES_PASSWORD,POSTGRES_PORT,POSTGRES_HOST,POSTGRES_USER
-
+from config import POSTGRES_DB, POSTGRES_PASSWORD, POSTGRES_PORT, POSTGRES_HOST, POSTGRES_USER
 
 Base = declarative_base()
 

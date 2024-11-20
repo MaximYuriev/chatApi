@@ -1,13 +1,13 @@
-from fastapi import APIRouter, WebSocket, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Annotated
 
-from db.database import get_session
-from dependencies.dependecies import current_user
-from models.chat import ChatCreate, ChatOuterRead, ChatInnerRead
-from models.message import MessageCreate
-from repositories.chat import ChatRepository
-from schemas.user import User, Chat
-from services.chat import ChatServices
+from fastapi import APIRouter, WebSocket, Depends
+
+from dependencies.auth import current_user
+from dependencies.chat import validate_chat_create
+from schemas.chat import ChatSchema
+from schemas.message import MessageCreate
+from models.user import User
+from services.chat import ChatService
 from services.message import MessageService
 from services.ws import WebSocketServices
 
@@ -16,35 +16,50 @@ chat_router = APIRouter(prefix="/chat", tags=["Chat"])
 active_connections: dict[int, WebSocket] = {}
 chat_connections: dict[int, int] = {}
 
+
 @chat_router.websocket("/ws/{chat_id}/{user_id}")
 async def websocket_connection(websocket: WebSocket, user_id: int, chat_id: int):
     return await WebSocketServices.ws_connection(websocket, user_id, chat_id)
 
+
 @chat_router.post("")
-async def create_new_chat(chat: ChatCreate, user: User = Depends(current_user),
-                          session: AsyncSession = Depends(get_session)):
-    return await ChatServices.create_chat(session, chat, user.user_id)
+async def create_new_chat(
+        chat: Annotated[ChatSchema, Depends(validate_chat_create)],
+        chat_service: ChatService = Depends()
+):
+    return await chat_service.create(chat)
+
 
 @chat_router.get("")
-async def get_all_users_chats(user: User = Depends(current_user), session: AsyncSession = Depends(get_session)):
-    return await ChatServices.get_all_user_chat(session, user.user_id)
+async def get_all_users_chats(
+        user: User = Depends(current_user),
+        chat_service: ChatService = Depends()
+):
+    return await chat_service.get_all_user_chat(user.user_id)
 
-@chat_router.get("/chtdist")
-async def get_chat_distinct(session: AsyncSession = Depends(get_session)):
-    await ChatRepository.distinct_select(session)
 
 @chat_router.get("/{chat_id}")
-async def get_chat_by_chat_id(chat_id:int, user: User = Depends(current_user),
-                              session: AsyncSession = Depends(get_session)):
-    return await ChatServices.get_chat(session, chat_id, user.user_id)
+async def get_chat_by_chat_id(
+        chat_id: int,
+        user: User = Depends(current_user),
+        chat_service: ChatService = Depends()
+):
+    return await chat_service.get_chat(chat_id, user.user_id)
+
 
 @chat_router.get("/message/{chat_id}")
-async def get_message(user: User = Depends(current_user), chat: ChatOuterRead = Depends(get_chat_by_chat_id),
-                      session: AsyncSession = Depends(get_session)):
-    return await MessageService.get_message_by_chat_id(session, chat.chat_id)
+async def get_message(
+        chat: Annotated[ChatSchema, Depends(get_chat_by_chat_id)],
+        message_service: MessageService = Depends()
+):
+    return await message_service.get_messages_from_chat(chat.chat_id)
+
 
 @chat_router.post("/message/{chat_id}")
-async def send_message(message: MessageCreate, user: User = Depends(current_user),
-                       chat: ChatInnerRead = Depends(get_chat_by_chat_id), session: AsyncSession = Depends(get_session)):
-    await MessageService.send_message(session, message, user.user_id, chat)
-
+async def send_message(
+        message: MessageCreate,
+        user: User = Depends(current_user),
+        chat: ChatSchema = Depends(get_chat_by_chat_id),
+        message_service: MessageService = Depends()
+):
+    return await message_service.send_message(message, user.user_id, chat)

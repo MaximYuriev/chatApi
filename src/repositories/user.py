@@ -1,62 +1,46 @@
-from pydantic import EmailStr
+from fastapi import Depends
 from redis import Redis
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from schemas.user import User
-from schemas.user import Session
+from db.database import get_session
+from models.user import User
 
 
 class UserRepository:
+    def __init__(self, session: AsyncSession = Depends(get_session)):
+        self.session = session
 
-    @staticmethod
-    async def create(session:AsyncSession, data:dict) -> None:
-        user = User(**data)
-        session.add(user)
-        await session.commit()
+    async def create(self, user_data: dict) -> None:
+        user = User(**user_data)
+        self.session.add(user)
+        await self.session.commit()
 
-    @staticmethod
-    async def get_user_by_id(session:AsyncSession, user_id:id)->User|None:
-        return await session.get(User,user_id)
+    async def get_user_by_id(self, user_id: id) -> User | None:
+        return await self.session.get(User, user_id)
 
-    @staticmethod
-    async def get_user_by_email(session:AsyncSession, email:EmailStr) -> User|None:
-        return await session.scalar(select(User).where(User.email == email))
+    async def get_user_by_param(self, **kwargs) -> User | None:
+        return await self.session.scalar(select(User).filter_by(**kwargs))
 
-    @staticmethod
-    async def get_user_by_username(session: AsyncSession, username: str) -> User | None:
-        return await session.scalar(select(User).where(User.username == username))
-
-    @staticmethod
-    async def get_user_by_session(session: AsyncSession, user_session:Session) -> User|None:
-        return await session.scalar(select(User).where(User.user_id == user_session.user_id))
-
-    @staticmethod
-    async def update(session: AsyncSession, user_update: dict, user:User) -> None:
+    async def update(self, user_update: dict, user: User) -> None:
         for key, value in user_update.items():
             setattr(user, key, value)
-        await session.commit()
+        await self.session.commit()
 
-    @staticmethod
-    async def get_all_users(session: AsyncSession):
-        result = await session.execute(select(User))
+    async def get_all_users(self):
+        result = await self.session.execute(select(User))
         return result.scalars().all()
-
-    # @staticmethod
-    # async def get_user_by_param(session:AsyncSession, **kwargs) -> User|None:
-    #     return await session.scalar(select(User).filter_by(**kwargs))
 
 
 class UserRedisRepository:
-
     @staticmethod
-    def set(key: str, value: any, expire: int|None) -> None:
+    def set(key: str, value: any, expire: int | None) -> None:
         with Redis() as redis_session:
             redis_session.set(name=key, value=value, ex=expire)
 
     @staticmethod
-    def get(key: str) -> int|None:
+    def get(key: str) -> int | None:
         with Redis() as redis_session:
-             value = redis_session.get(name = key)
-             if value is not None:
-                 return int(value)
+            value = redis_session.get(name=key)
+            if value is not None:
+                return int(value)
