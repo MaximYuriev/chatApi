@@ -22,6 +22,7 @@ def create_message_data(
     code_value = UserRedisService.generation_verify_code(user.user_id)
     return {"email": user.email, "code_value": code_value}
 
+
 def validate_verify_code(
         verify_code: Annotated[int, Body()],
         user: Annotated[User, Depends(check_verify_user)]

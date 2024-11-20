@@ -1,7 +1,5 @@
 import random
 
-from fastapi import HTTPException
-
 from repositories.user import UserRedisRepository
 
 
@@ -15,6 +13,3 @@ class UserRedisService:
     @staticmethod
     def get(user_id: int) -> int | None:
         return UserRedisRepository.get(str(user_id))
-
-        if true_code != user_code:
-            raise HTTPException(status_code=400, detail="Введен неверный код!")
