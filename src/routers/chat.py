@@ -11,7 +11,7 @@ from services.chat import ChatService
 from services.message import MessageService
 from services.ws import WebSocketServices
 
-chat_router = APIRouter(prefix="/chat", tags=["Chat"], dependencies=[Depends(current_user)])
+chat_router = APIRouter(prefix="/chat", tags=["Chat"])
 
 active_connections: dict[int, WebSocket] = {}
 chat_connections: dict[int, int] = {}
