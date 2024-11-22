@@ -15,6 +15,7 @@ class User(Base):
     firstname: Mapped[str] = mapped_column(nullable=True)
     lastname: Mapped[str] = mapped_column(nullable=True)
     is_verify: Mapped[bool] = mapped_column(default=False)
+    is_bot: Mapped[bool] = mapped_column(default=False)
 
 
 class Chat(Base):
