@@ -8,6 +8,7 @@ from exceptions.user import UserNotFound
 from models.user import User
 from schemas.chat import ChatCreate, ChatSchema
 from services.chat import ChatService
+from services.message import MessageService
 from services.user import UserService
 
 
