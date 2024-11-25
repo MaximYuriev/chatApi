@@ -11,6 +11,9 @@ class ChatOuterRead(BaseModel):
     last_message: str | None = Field(description="Последнее сообщение",
                                      serialization_alias="lastMessage",
                                      validation_alias="content")
+    count_unread_messages: int | None = Field(description="Количество непрочитанных сообщений",
+                                              serialization_alias="countUnreadMessages",
+                                              validation_alias="unread_messages")
 
 
 class ChatSchema(BaseModel):
