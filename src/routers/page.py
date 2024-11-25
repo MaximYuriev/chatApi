@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends
 from starlette.templating import Jinja2Templates
 
 from dependencies.auth import current_user
-from routers.chat import get_all_users_chats, get_chat_by_chat_id
+from routers.chat import get_all_users_chats, get_chat_by_chat_id, read_unread_message
 from models.user import User, Chat
 
 page_router = APIRouter(prefix="/page", tags=['Pages'])
@@ -19,7 +19,7 @@ def get_main_page(
     return templates.TemplateResponse("main_page.html", {"request": request, "current_user": user, "chats": chats})
 
 
-@page_router.get("/chat/{chat_id}")
+@page_router.get("/chat/{chat_id}", dependencies=[Depends(read_unread_message)])
 def get_chat_page(
         request: Request,
         user: User = Depends(current_user),

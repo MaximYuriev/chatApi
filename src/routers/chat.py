@@ -19,7 +19,7 @@ chat_connections: dict[int, int] = {}
 
 @chat_router.websocket("/ws/{chat_id}/{user_id}")
 async def websocket_connection(websocket: WebSocket, user_id: int, chat_id: int):
-    return await WebSocketServices.ws_connection(websocket, user_id, chat_id)
+    await WebSocketServices.ws_connection(websocket, user_id, chat_id)
 
 
 @chat_router.post("")
@@ -63,3 +63,13 @@ async def send_message(
         message_service: MessageService = Depends()
 ):
     return await message_service.send_message(message, user.user_id, chat)
+
+@chat_router.patch("/message/{chat_id}")
+async def read_unread_message(
+        user: Annotated[User, Depends(current_user)],
+        chat_id: int,
+        message_service: MessageService = Depends()
+):
+    messages = await message_service.get_all_unread_messages(chat_id, user.user_id)
+    if messages:
+        await message_service.read_messages(messages)

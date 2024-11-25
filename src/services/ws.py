@@ -24,8 +24,10 @@ class WebSocketServices:
         websocket = cls.active_connections[user_id]
         try:
             await websocket.send_json(message)
+            return True
         except WebSocketDisconnect:
             WebSocketServices.ws_disconnect(user_id)
+            return False
 
     @classmethod
     def ws_disconnect(cls, user_id: int):

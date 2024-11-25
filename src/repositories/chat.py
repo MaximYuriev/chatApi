@@ -1,7 +1,7 @@
 from typing import Sequence
 
 from fastapi import Depends
-from sqlalchemy import select, or_, and_, case, desc
+from sqlalchemy import select, or_, and_, case, desc, func, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.database import get_session
@@ -47,15 +47,27 @@ class ChatRepository:
             .order_by(Message.chat_id, desc(Message.message_id))
             .cte("last_messages")
         )
+        subquery2 = (
+            select(Message.chat_id, func.count(Message.is_read).label("unread_messages"), case(
+                (Chat.user_1_id != Message.sender_id, Chat.user_1_id),
+                (Chat.user_2_id != Message.sender_id, Chat.user_2_id),
+                else_=Message.sender_id
+            ).label("recipient_id"))
+            .join(Chat, Chat.chat_id == Message.chat_id)
+            .where(Message.is_read == False)
+            .group_by(Message.chat_id, text("recipient_id"))
+            .cte("unread_message")
+        )
         query = (
             select(cte.c.chat_id, case(
                 (and_(User.firstname != None, User.lastname != None), User.firstname + " " + User.lastname),
                 (and_(User.firstname != None, User.lastname == None), User.firstname),
                 (and_(User.firstname == None, User.lastname != None), User.lastname),
                 else_=User.username
-            ).label("fullname"), subquery.c.content)
+            ).label("fullname"), subquery.c.content, subquery2.c.unread_messages)
             .join(User, User.user_id == cte.c.user_id)
             .join(subquery, cte.c.chat_id == subquery.c.chat_id, isouter=True)
+            .join(subquery2, and_(subquery2.c.recipient_id == user_id, subquery2.c.chat_id == cte.c.chat_id), isouter=True)
             .order_by(desc(subquery.c.message_id))
         )
         chats = await self.session.execute(query)
