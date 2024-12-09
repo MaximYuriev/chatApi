@@ -22,3 +22,5 @@ REDIS_HOST = os.environ.get("REDIS_HOST")
 REDIS_PORT = int(os.environ.get("REDIS_PORT"))
 
 UVICORN_HOST = os.environ.get("UVICORN_HOST")
+
+OPEN_AI_KEY = os.environ.get("OPEN_AI_KEY")
