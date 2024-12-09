@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, WebSocket, Depends
 
 from dependencies.auth import current_user
-from dependencies.chat import validate_chat_create
+from dependencies.chat import validate_chat_create, get_chat_by_chat_id, recipient_is_bot
 from schemas.chat import ChatSchema
 from schemas.message import MessageCreate
 from models.user import User
@@ -39,12 +39,10 @@ async def get_all_users_chats(
 
 
 @chat_router.get("/{chat_id}")
-async def get_chat_by_chat_id(
-        chat_id: int,
-        user: User = Depends(current_user),
-        chat_service: ChatService = Depends()
+async def get_chat(
+        chat: Annotated[ChatSchema, Depends(get_chat_by_chat_id)]
 ):
-    return await chat_service.get_chat(chat_id, user.user_id)
+    return await chat
 
 
 @chat_router.get("/message/{chat_id}")
@@ -58,11 +56,13 @@ async def get_message(
 @chat_router.post("/message/{chat_id}")
 async def send_message(
         message: MessageCreate,
+        is_bot: Annotated[bool, Depends(recipient_is_bot)],
         user: User = Depends(current_user),
         chat: ChatSchema = Depends(get_chat_by_chat_id),
         message_service: MessageService = Depends()
 ):
-    return await message_service.send_message(message, user.user_id, chat)
+    return await message_service.send_message(message, user.user_id, chat, is_bot)
+
 
 @chat_router.patch("/message/{chat_id}")
 async def read_unread_message(

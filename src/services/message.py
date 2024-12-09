@@ -2,6 +2,7 @@ from fastapi import Depends
 
 from schemas.chat import ChatSchema
 from services.chat import ChatService
+from services.bot import BotService
 from services.ws import WebSocketServices
 from src.schemas.message import MessageCreate
 from repositories.message import MessageRepository
@@ -11,7 +12,7 @@ class MessageService:
     def __init__(self, repository: MessageRepository = Depends()):
         self.repository = repository
 
-    async def send_message(self, message: MessageCreate, sender_id: int, chat: ChatSchema):
+    async def send_message(self, message: MessageCreate, sender_id: int, chat: ChatSchema, recipient_is_bot: bool = False):
         message = message.model_dump()
         message.update(sender_id=sender_id)
 
@@ -29,6 +30,11 @@ class MessageService:
 
         message.update(chat_id=chat.chat_id)
         await self.repository.create(message)
+
+        if recipient_is_bot:
+            bot_response = BotService.generate_response(message["content"])
+            await self.send_message(MessageCreate(content=bot_response), 5, chat)
+
         return {"detail": "Сообщение успешно отправлено", "data": None}
 
     async def get_messages_from_chat(self, chat_id: int):
